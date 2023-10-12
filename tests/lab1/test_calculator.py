@@ -2,9 +2,6 @@ import unittest
 from src.lab1.calculator import calculator
 
 class CalculatorTestCase(unittest.TestCase):
-
-    def test_one(self):
-        self.assertEquals(1, 1)
        
     def test_sum(self):
         self.assertEqual(calculator(1, '+', 1), 2)
