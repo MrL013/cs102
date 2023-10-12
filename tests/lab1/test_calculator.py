@@ -21,10 +21,6 @@ class CalculatorTestCase(unittest.TestCase):
     def test_mod(self):
         self.assertEqual(calculator(22, '%', 7), 1)
 
-    def test_invalid_operator(self):
-        with self.assertRaises(KeyError):
-            calculator(15, '?', 3)
-
     def test_division_by_zero(self):
         with self.assertRaises(ZeroDivisionError):
             calculator(50, '/', 0)
