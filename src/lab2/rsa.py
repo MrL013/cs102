@@ -12,8 +12,16 @@ def is_prime(n: int) -> bool:
     >>> is_prime(8)
     False
     """
-    # PUT YOUR CODE HERE
-    pass
+    d = set()
+    for i in range(1, int(n ** 0.5) + 1):
+        if n % i == 0:
+            d |= {i, n // i}
+            print(d)
+    if len(d) == 2:
+        return True
+    else:
+        return False
+    
 
 
 def gcd(a: int, b: int) -> int:
@@ -86,7 +94,7 @@ def decrypt(pk: tp.Tuple[int, int], ciphertext: tp.List[int]) -> str:
     # Return the array of bytes as a string
     return "".join(plain)
 
-
+print(is_prime(8))
 if __name__ == "__main__":
     print("RSA Encrypter/ Decrypter")
     p = int(input("Enter a prime number (17, 19, 23, etc): "))
