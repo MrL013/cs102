@@ -12,8 +12,15 @@ def is_prime(n: int) -> bool:
     >>> is_prime(8)
     False
     """
-    # PUT YOUR CODE HERE
-    pass
+    d = set()
+    for i in range(1, int(n ** 0.5) + 1):
+        if n % i == 0:
+            d |= {i, n // i}
+    if len(d) == 2:
+        return True
+    else:
+        return False
+    
 
 
 def gcd(a: int, b: int) -> int:
@@ -24,8 +31,12 @@ def gcd(a: int, b: int) -> int:
     >>> gcd(3, 7)
     1
     """
-    # PUT YOUR CODE HERE
-    pass
+
+    while a % b != 0:
+        c = a % b
+        a = b
+        b = c
+    return b
 
 
 def multiplicative_inverse(e: int, phi: int) -> int:
@@ -35,9 +46,20 @@ def multiplicative_inverse(e: int, phi: int) -> int:
     >>> multiplicative_inverse(7, 40)
     23
     """
-    # PUT YOUR CODE HERE
-    pass
 
+    d, x1, x2, y1, y2 = 0, 1, 0, 0, 1
+    first_phi = phi
+    while phi:
+        q, e, phi = e // phi, phi, e % phi
+        x1, x2 = x2, x1 - q * x2
+        y1, y2 = y2, y1 - q * y2
+    d = x1
+
+    if d < 0:
+        d = d + first_phi
+
+    if e == 1:
+        return d 
 
 def generate_keypair(p: int, q: int) -> tp.Tuple[tp.Tuple[int, int], tp.Tuple[int, int]]:
     if not (is_prime(p) and is_prime(q)):
@@ -46,10 +68,10 @@ def generate_keypair(p: int, q: int) -> tp.Tuple[tp.Tuple[int, int], tp.Tuple[in
         raise ValueError("p and q cannot be equal")
 
     # n = pq
-    # PUT YOUR CODE HERE
+    n = p * q
 
     # phi = (p-1)(q-1)
-    # PUT YOUR CODE HERE
+    phi = (p - 1) * (q - 1)
 
     # Choose an integer e such that e and phi(n) are coprime
     e = random.randrange(1, phi)
@@ -86,7 +108,7 @@ def decrypt(pk: tp.Tuple[int, int], ciphertext: tp.List[int]) -> str:
     # Return the array of bytes as a string
     return "".join(plain)
 
-
+print(multiplicative_inverse(7, 40))
 if __name__ == "__main__":
     print("RSA Encrypter/ Decrypter")
     p = int(input("Enter a prime number (17, 19, 23, etc): "))
