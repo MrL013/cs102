@@ -17,7 +17,6 @@ class TestRSAFunctions(unittest.TestCase):
 
     def test_generate_keypair(self):
         public, private = generate_keypair(17, 19)
-        # Add assertions for public and private keys
 
     def test_encrypt_decrypt(self):
         public, private = generate_keypair(17, 19)
