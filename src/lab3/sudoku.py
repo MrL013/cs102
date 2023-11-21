@@ -1,5 +1,6 @@
 import pathlib
 import typing as tp
+import random
 
 T = tp.TypeVar("T")
 
@@ -41,7 +42,7 @@ def group(values: tp.List[T], n: int) -> tp.List[tp.List[T]]:
     >>> group([1,2,3,4,5,6,7,8,9], 3)
     [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     """
-    result = [values[i:i+n] for i in range(0, len(values), n)]
+    result = [values[i:i + n] for i in range(0, len(values), n)]
     return result
 
 
@@ -69,6 +70,7 @@ def get_col(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str
     result = [grid[i][pos[1]] for i in range(len(grid))]
     return result
 
+
 def get_block(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str]:
     """Возвращает все значения из квадрата, в который попадает позиция pos
     >>> grid = read_sudoku('puzzle1.txt')
@@ -87,7 +89,6 @@ def get_block(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[s
     return block
 
 
-
 def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[int, int]]:
     """Найти первую свободную позицию в пазле
     >>> find_empty_positions([['1', '2', '.'], ['4', '5', '6'], ['7', '8', '9']])
@@ -98,8 +99,7 @@ def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[in
     (2, 0)
     """
     position = [(i, j) for i in range(len(grid)) for j in range(len(grid[i])) if grid[i][j] == '.']
-    return position
-
+    return position[0]
 
 
 def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.Set[str]:
@@ -119,11 +119,11 @@ def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -
     row_poin = set(grid[row])
     col_point = set(grid[i][col] for i in range(9))
 
-    points = row_poin | col_point | block
+    points = row_poin | col_point | set(block)
 
     max_point = set(str(i) for i in range(1, 10))
 
-    result = max_point - points 
+    result = max_point - points
 
     return result
 
@@ -155,15 +155,32 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
             return result
         else:
             grid[row][col] = '.'
-    
-    return None
 
+    return None
 
 
 def check_solution(solution: tp.List[tp.List[str]]) -> bool:
     """ Если решение solution верно, то вернуть True, в противном случае False """
     # TODO: Add doctests with bad puzzles
-    pass
+
+    for row in solution:
+        if set(row) != set("123456789"):
+            return False
+
+    for col in range(9):
+        if set(solution[row][col] for row in range(9)) != set("123456789"):
+            return False
+
+        for start_row in range(0, 9, 3):
+            for start_col in range(0, 9, 3):
+                if set(
+                        solution[row][col]
+                        for row in range(start_row, start_row + 3)
+                        for col in range(start_col, start_col + 3)
+                ) != set("123456789"):
+                    return False
+
+    return True
 
 
 def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
@@ -187,7 +204,20 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
     >>> check_solution(solution)
     True
     """
-    pass
+    if N > 81:
+        raise ValueError('N <= 81!')
+
+    grid = [["." for _ in range(9)] for _ in range(9)]
+
+    for _ in range(81 - N):
+        while True:
+            row = random.randint(0, 8)
+            col = random.randint(0, 8)
+            if grid[row][col] != ".":
+                grid[row][col] = "."
+                break
+
+    return grid
 
 
 if __name__ == "__main__":
