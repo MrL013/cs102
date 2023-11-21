@@ -41,14 +41,8 @@ def group(values: tp.List[T], n: int) -> tp.List[tp.List[T]]:
     >>> group([1,2,3,4,5,6,7,8,9], 3)
     [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     """
-    result = []
-    k = len(values) // n
-    for _ in range(k):
-        i = 0
-        result.append[values[i:i+n]]
-        i += n
-        
-
+    result = [values[i:i+n] for i in range(0, len(values), n)]
+    return result
 
 
 def get_row(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str]:
@@ -60,7 +54,7 @@ def get_row(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str
     >>> get_row([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']], (2, 0))
     ['.', '8', '9']
     """
-    pass
+    return grid[pos[0]]
 
 
 def get_col(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str]:
@@ -72,8 +66,8 @@ def get_col(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str
     >>> get_col([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']], (0, 2))
     ['3', '6', '9']
     """
-    pass
-
+    result = [grid[i][pos[1]] for i in range(len(grid))]
+    return result
 
 def get_block(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str]:
     """Возвращает все значения из квадрата, в который попадает позиция pos
@@ -85,7 +79,13 @@ def get_block(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[s
     >>> get_block(grid, (8, 8))
     ['2', '8', '.', '.', '.', '5', '.', '7', '9']
     """
-    pass
+    row, col = pos
+    start_row, start_col = 3 * (row // 3), 3 * (col // 3)
+
+    block = [grid[i][j] for i in range(start_row, start_row + 3) for j in range(start_col, start_col + 3)]
+
+    return block
+
 
 
 def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[int, int]]:
@@ -97,7 +97,9 @@ def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[in
     >>> find_empty_positions([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']])
     (2, 0)
     """
-    pass
+    position = [(i, j) for i in range(len(grid)) for j in range(len(grid[i])) if grid[i][j] == '.']
+    return position
+
 
 
 def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.Set[str]:
@@ -110,7 +112,20 @@ def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -
     >>> values == {'2', '5', '9'}
     True
     """
-    pass
+    row, col = pos
+    start_row, start_col = 3 * (row // 3), 3 * (col // 3)
+    block = [grid[i][j] for i in range(start_row, start_row + 3) for j in range(start_col, start_col + 3)]
+
+    row_poin = set(grid[row])
+    col_point = set(grid[i][col] for i in range(9))
+
+    points = row_poin | col_point | block
+
+    max_point = set(str(i) for i in range(1, 10))
+
+    result = max_point - points 
+
+    return result
 
 
 def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
@@ -125,7 +140,24 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
     >>> solve(grid)
     [['5', '3', '4', '6', '7', '8', '9', '1', '2'], ['6', '7', '2', '1', '9', '5', '3', '4', '8'], ['1', '9', '8', '3', '4', '2', '5', '6', '7'], ['8', '5', '9', '7', '6', '1', '4', '2', '3'], ['4', '2', '6', '8', '5', '3', '7', '9', '1'], ['7', '1', '3', '9', '2', '4', '8', '5', '6'], ['9', '6', '1', '5', '3', '7', '2', '8', '4'], ['2', '8', '7', '4', '1', '9', '6', '3', '5'], ['3', '4', '5', '2', '8', '6', '1', '7', '9']]
     """
-    pass
+    empty_position = find_empty_positions(grid)
+
+    if not empty_position:
+        return grid
+
+    row, col = empty_position[0]
+    points = find_empty_positions(grid, (row, col))
+
+    for point in points:
+        grid[row][col] = point
+        result = solve(grid)
+        if result:
+            return result
+        else:
+            grid[row][col] = '.'
+    
+    return None
+
 
 
 def check_solution(solution: tp.List[tp.List[str]]) -> bool:

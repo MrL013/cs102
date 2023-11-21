@@ -1,3 +1,7 @@
+import unittest
+import random
+import string
+
 def encrypt_vigenere(plaintext: str, keyword: str) -> str:
     """
     Encrypts plaintext using a Vigenere cipher.
@@ -9,58 +13,25 @@ def encrypt_vigenere(plaintext: str, keyword: str) -> str:
     >>> encrypt_vigenere("ATTACKATDAWN", "LEMON")
     'LXFOPVEFRNHR'
     """
-    caps_lang = list('ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ')
-    lang = list('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz')
+    caps_lang = 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    lang = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz'
 
     ciphertext = ""
+    keyword = keyword.upper()
 
     for i in range(len(plaintext)):
-
-        if len(keyword) == len(plaintext):
+        if plaintext[i].isalpha():
+            shift = keyword[i % len(keyword)]
             if plaintext[i].isupper():
                 n_p = caps_lang.index(plaintext[i])
-                if keyword[i].isupper():
-                    n_k = caps_lang.index(keyword[i])
-                    ciphertext += caps_lang[n_k+n_p]
-                else:
-                    n_k = lang.index(keyword[i])
-                    ciphertext += lang[n_k+n_p]
+                n_k = caps_lang.index(shift)
+                ciphertext += caps_lang[(n_p + n_k) % 26]
             else:
                 n_p = lang.index(plaintext[i])
-                if keyword[i].isupper():
-                    n_k = caps_lang.index(keyword[i])
-                    ciphertext += caps_lang[n_k+n_p]
-                else:
-                    n_k = lang.index(keyword[i])
-                    ciphertext += lang[n_k+n_p]
-
-        elif len(keyword) < len(plaintext):
-
-            keywords = list(keyword)
-            k = len(plaintext) - len(keyword)
-            K = k // len(keyword)
-            for _ in range(K):
-                keywords.extend(keywords)
-            n = k % len(keyword)
-            if n != 0:
-                keywords.extend(keywords[:n])
-
-            if plaintext[i].isupper():
-                n_p = caps_lang.index(plaintext[i])
-                if keywords[i % len(keywords)].isupper():
-                    n_k = caps_lang.index(keywords[i % len(keywords)])
-                    ciphertext += caps_lang[n_k + n_p]
-                else:
-                    n_k = lang.index(keywords[i % len(keywords)])
-                    ciphertext += lang[n_k + n_p]
-            else:
-                n_p = lang.index(plaintext[i])
-                if keywords[i % len(keywords)].isupper():
-                    n_k = caps_lang.index(keywords[i % len(keywords)])
-                    ciphertext += caps_lang[n_k + n_p]
-                else:
-                    n_k = lang.index(keywords[i % len(keywords)])
-                    ciphertext += lang[n_k + n_p]
+                n_k = caps_lang.index(shift)
+                ciphertext += lang[(n_p + n_k) % 26]
+        else:
+            ciphertext += plaintext[i]
 
     return ciphertext
 
@@ -75,58 +46,46 @@ def decrypt_vigenere(ciphertext: str, keyword: str) -> str:
     >>> decrypt_vigenere("LXFOPVEFRNHR", "LEMON")
     'ATTACKATDAWN'
     """
+    caps_lang = 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    lang = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz'
 
-    caps_lang = list('ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ')
-    lang = list('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz')
-    
     plaintext = ""
+    keyword = keyword.upper()
 
     for i in range(len(ciphertext)):
-
-        if len(keyword) == len(ciphertext):
+        if ciphertext[i].isalpha():
+            shift = keyword[i % len(keyword)]
             if ciphertext[i].isupper():
                 n_c = caps_lang.index(ciphertext[i])
-                if keyword[i].isupper():
-                    n_k = caps_lang.index(keyword[i])
-                    plaintext += caps_lang[n_c - n_k]
-                else:
-                    n_k = lang.index(keyword[i])
-                    plaintext += lang[n_c - n_k]
+                n_k = caps_lang.index(shift)
+                plaintext += caps_lang[(n_c - n_k) % 26]
             else:
                 n_c = lang.index(ciphertext[i])
-                if keyword[i].isupper():
-                    n_k = caps_lang.index(keyword[i])
-                    plaintext += caps_lang[n_c - n_k]
-                else:
-                    n_k = lang.index(keyword[i])
-                    plaintext += lang[n_c - n_k]
-
-        elif len(keyword) < len(ciphertext):
-            keywords = list(keyword)
-            k = len(ciphertext) - len(keyword)
-            K = k // len(keyword)
-            for _ in range(K):
-                keywords.extend(keywords)
-            n = k % len(keyword)
-            if n != 0:
-                keywords.extend(keywords[:n])
-
-            if ciphertext[i].isupper():
-                n_c = caps_lang.index(ciphertext[i])
-                if keywords[i % len(keywords)].isupper():
-                    n_k = caps_lang.index(keywords[i % len(keywords)])
-                    plaintext += caps_lang[n_c - n_k]
-                else:
-                    n_k = lang.index(keywords[i % len(keywords)])
-                    plaintext += lang[n_c - n_k]
-            else:
-                n_c = lang.index(ciphertext[i])
-                if keywords[i % len(keywords)].isupper():
-                    n_k = caps_lang.index(keywords[i % len(keywords)])
-                    plaintext += caps_lang[n - n_k]
-                else:
-                    n_k = lang.index(keywords[i % len(keywords)])
-                    plaintext += lang[n_c - n_k]
+                n_k = caps_lang.index(shift)
+                plaintext += lang[(n_c - n_k) % 26]
+        else:
+            plaintext += ciphertext[i]
 
     return plaintext
 
+class TestVigenereCipher(unittest.TestCase):
+
+    def test_encrypt_vigenere(self):
+        self.assertEqual(encrypt_vigenere("PYTHON", "A"), "PYTHON")
+        self.assertEqual(encrypt_vigenere("python", "a"), "python")
+        self.assertEqual(encrypt_vigenere("ATTACKATDAWN", "LEMON"), "LXFOPVEFRNHR")
+
+    def test_decrypt_vigenere(self):
+        self.assertEqual(decrypt_vigenere("PYTHON", "A"), "PYTHON")
+        self.assertEqual(decrypt_vigenere("python", "a"), "python")
+        self.assertEqual(decrypt_vigenere("LXFOPVEFRNHR", "LEMON"), "ATTACKATDAWN")
+
+    def test_randomized(self):
+        kwlen = random.randint(4, 24)
+        keyword = ''.join(random.choice(string.ascii_letters) for _ in range(kwlen))
+        plaintext = ''.join(random.choice(string.ascii_letters + ' -,') for _ in range(64))
+        ciphertext = encrypt_vigenere(plaintext, keyword)
+        self.assertEqual(plaintext, decrypt_vigenere(ciphertext, keyword))
+
+if __name__ == '__main__':
+    unittest.main()
