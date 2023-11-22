@@ -1,6 +1,8 @@
 import pathlib
 import typing as tp
 import random
+import copy
+from random import randint
 
 T = tp.TypeVar("T")
 
@@ -42,7 +44,7 @@ def group(values: tp.List[T], n: int) -> tp.List[tp.List[T]]:
     >>> group([1,2,3,4,5,6,7,8,9], 3)
     [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     """
-    result = [values[i:i + n] for i in range(0, len(values), n)]
+    result = [values[i:i+n] for i in range(0, len(values), n)]
     return result
 
 
@@ -70,7 +72,6 @@ def get_col(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str
     result = [grid[i][pos[1]] for i in range(len(grid))]
     return result
 
-
 def get_block(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[str]:
     """Возвращает все значения из квадрата, в который попадает позиция pos
     >>> grid = read_sudoku('puzzle1.txt')
@@ -89,6 +90,7 @@ def get_block(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[s
     return block
 
 
+
 def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[int, int]]:
     """Найти первую свободную позицию в пазле
     >>> find_empty_positions([['1', '2', '.'], ['4', '5', '6'], ['7', '8', '9']])
@@ -98,8 +100,9 @@ def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[in
     >>> find_empty_positions([['1', '2', '3'], ['4', '5', '6'], ['.', '8', '9']])
     (2, 0)
     """
-    position = [(i, j) for i in range(len(grid)) for j in range(len(grid[i])) if grid[i][j] == '.']
-    return position[0]
+    positions = [(i, j) for i in range(len(grid)) for j in range(len(grid[i])) if grid[i][j] == '.']
+    return positions[0] if positions else None
+
 
 
 def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.Set[str]:
@@ -123,7 +126,7 @@ def find_possible_values(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -
 
     max_point = set(str(i) for i in range(1, 10))
 
-    result = max_point - points
+    result = max_point - points 
 
     return result
 
@@ -142,19 +145,18 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
     """
     empty_position = find_empty_positions(grid)
 
-    if not empty_position:
+    if empty_position is None:
         return grid
 
-    row, col = empty_position[0]
-    points = find_empty_positions(grid, (row, col))
+    row, col = empty_position
+    points = find_possible_values(grid, (row, col))
 
     for point in points:
-        grid[row][col] = point
-        result = solve(grid)
+        grid_copy = copy.deepcopy(grid)
+        grid_copy[row][col] = point
+        result = solve(grid_copy)
         if result:
             return result
-        else:
-            grid[row][col] = '.'
 
     return None
 
@@ -162,23 +164,22 @@ def solve(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.List[tp.List[str]]]:
 def check_solution(solution: tp.List[tp.List[str]]) -> bool:
     """ Если решение solution верно, то вернуть True, в противном случае False """
     # TODO: Add doctests with bad puzzles
-
     for row in solution:
         if set(row) != set("123456789"):
             return False
-
+        
     for col in range(9):
         if set(solution[row][col] for row in range(9)) != set("123456789"):
             return False
-
-        for start_row in range(0, 9, 3):
-            for start_col in range(0, 9, 3):
-                if set(
-                        solution[row][col]
-                        for row in range(start_row, start_row + 3)
-                        for col in range(start_col, start_col + 3)
-                ) != set("123456789"):
-                    return False
+        
+    for start_row in range(0, 9, 3):
+        for start_col in range(0, 9, 3):
+            if set(
+                solution[row][col]
+                for row in range(start_row, start_row + 3)
+                for col in range(start_col, start_col + 3)
+            ) != set("123456789"):
+                return False
 
     return True
 
@@ -204,21 +205,23 @@ def generate_sudoku(N: int) -> tp.List[tp.List[str]]:
     >>> check_solution(solution)
     True
     """
-    if N > 81:
-        raise ValueError('N <= 81!')
 
-    grid = [["." for _ in range(9)] for _ in range(9)]
+    # if N> 81:
+    #     raise ValueError("N <= 81!")
+    
+    N = min(N, 81)
 
-    for _ in range(81 - N):
-        while True:
-            row = random.randint(0, 8)
-            col = random.randint(0, 8)
-            if grid[row][col] != ".":
-                grid[row][col] = "."
-                break
+    empty_positions = [ ['.' for _ in range(9)] for row in range(9) ]
+    grid = solve(copy.deepcopy(empty_positions))
+    nums = sum( row.count('.') for row in grid )
 
-    return grid
+    while 81 - N> nums:
+        row = randint(0, 8)
+        col = randint(0, 8)
+        grid[row][col] = '.'
+        nums = sum( row.count('.') for row in grid )
 
+    return grid  
 
 if __name__ == "__main__":
     for fname in ["puzzle1.txt", "puzzle2.txt", "puzzle3.txt"]:
