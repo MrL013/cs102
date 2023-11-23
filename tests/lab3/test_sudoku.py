@@ -2,8 +2,8 @@ import unittest
 import sys
 import os
 
+#from src.lab3 import sudoku
 from src.lab3 import sudoku
-
 
 class SudokuTestCase(unittest.TestCase):
     def test_group(self):
