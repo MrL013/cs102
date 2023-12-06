@@ -15,13 +15,15 @@ class Recommendations_system:
             return [list(map(int, history.split(','))) for history in file.read().splitlines()]
 
     def recomendation_system(self, user_views: List[int]) -> str:
+        if not user_views:
+            return 'no recomendation'
         search_users = []
 
         for user in self.history:
-            all_views = set(user_views) and set(user)
+            all_views = set(user_views) & set(user)
             if len(all_views) >= len(user_views) / 2:
                 search_users.append(user)
-        
+
         watched_films = set(user_views)
 
         recomendations_films = {}
@@ -30,14 +32,15 @@ class Recommendations_system:
             for film_id in user:
                 if film_id not in watched_films and film_id in self.films:
                     recomendations_films[film_id] = recomendations_films.get(film_id, 0) + 1
-        
+
         if recomendations_films:
             max_views = max(recomendations_films.values())
             for film_id, views in recomendations_films.items():
                 if views == max_views:
                     return self.films[film_id]
-        
+
         return 'no recomendation'
+
 
 def main():
     data_films = 'files/films.txt'
