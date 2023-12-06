@@ -10,8 +10,8 @@ class TestRecommendationsSystem(unittest.TestCase):
         self.assertEqual(self.recSystem.check_films('src/lab4/1/files/films.txt'), {1: 'Мстители: Финал', 2: 'Хатико', 3: 'Дюна', 4: 'Унесенные призраками'})
         
     def test_check_history(self):
-        self.assertEqual(self.recSystem.check_history('src/lab4/1/files/history.txt'), [[1, 2, 3], [2, 4], [1, 3, 5]])
-        
+        self.assertEqual(self.recSystem.check_history('src/lab4/1/files/history.txt'), [[2 ,1, 3], [1, 4, 3], [2, 2, 2, 2, 2, 3]])
+         
     def test_recomendation_system(self):
         self.assertEqual(self.recSystem.recomendation_system([1, 2]), 'Дюна')
         self.assertEqual(self.recSystem.recomendation_system([2, 4]), 'Дюна')
