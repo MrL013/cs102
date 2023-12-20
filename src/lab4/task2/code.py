@@ -1,3 +1,4 @@
+
 import sys
 
 class SortGroup:
@@ -5,7 +6,7 @@ class SortGroup:
         self.group_point = group_point
         self.users = []
 
-    def input(self):
+    def input_data(self):
         while True:
             input_data = input()
             if input_data == 'END':
@@ -18,10 +19,10 @@ class SortGroup:
             name, age_str = respondent_data.rsplit(' ', 1)
             age = int(age_str)
             if age < 0 or age > 123:
-                raise ValueError('only 0 <= n <- 123')
+                raise ValueError('Only 0 <= n < 123')
             self.users.append((name.strip(), age))
         except ValueError as e:
-            print(f'error: {e}')
+            print(f'Error: {e}')
 
     def get_groups(self):
         groups = {}
@@ -33,9 +34,17 @@ class SortGroup:
                 if lower <= age <= upper:
                     groups[group_name].append((name, age))
 
+            if upper == self.group_point[-1]:
+                last_group_name = f"{self.group_point[-1]}+"
+                if last_group_name not in groups:
+                    groups[last_group_name] = []
+                for name, age in sorted(self.users, key=lambda x: (x[1], x[0])):
+                    if age > upper:
+                        groups[last_group_name].append((name, age))
+
         return groups
 
-    def print(self, groups):
+    def display_groups(self, groups):
         for group, users in sorted(groups.items(), key=lambda x: x[0], reverse=True):
             if users:
                 users_f = ", ".join([f"{name} ({age})" for name, age in users])
@@ -44,13 +53,14 @@ class SortGroup:
 
 def main():
     try:
-        bord = [int(arg) for arg in sys.argv[1:]]
+        bord = list(map(int, input().split()))
         point = SortGroup(bord)
-        point.input()
+        point.input_data()
         result = point.get_groups()
-        point.print(result)
+        point.display_groups(result)
     except ValueError:
-        print('error')
+        print('Error')
+    
 
 if __name__ == "__main__":
     main()
